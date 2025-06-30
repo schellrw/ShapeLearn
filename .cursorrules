@@ -1,0 +1,176 @@
+# ShapeLearn - Cursor AI Rules
+
+## Project Context
+You are working on ShapeLearn - an innovative educational platform for children ages 5-10 that uses 3D shape-based visualizations to teach mathematics, with expansion into reading, art, and other subjects. The platform emphasizes parent engagement, AI-powered personalization, and COPPA-compliant child safety.
+
+## Tech Stack
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
+- **3D Engine**: Three.js + React Three Fiber for math visualizations
+- **Backend**: Python Flask + SQLAlchemy + Celery + Redis
+- **Database**: Supabase (PostgreSQL) with Row Level Security
+- **AI/ML**: Hugging Face models (via Hyperbolic/FAL providers)
+- **Storage**: Digital Ocean Spaces (S3-compatible)
+- **Auth**: Supabase Auth with JWT tokens (COPPA-compliant)
+- **Deployment**: Netlify (frontend), Digital Ocean (backend)
+
+## Educational Domain Knowledge
+- **Target age**: 5-10 years old (K-5th grade)
+- **Learning theory**: Visual-spatial learning, constructivism, multi-sensory engagement
+- **Mathematical concepts**: Number sense, basic operations, pattern recognition
+- **Child development**: Attention spans, motor skills, cognitive load appropriate for age
+- **Parent involvement**: Celebration systems, progress monitoring, family engagement
+
+## Code Quality Standards
+- Write clean, readable, well-documented code with child safety as priority
+- Use TypeScript for all frontend code with strict mode enabled
+- Follow PEP 8 for Python code with comprehensive type hints
+- Implement robust error handling - failures should never frustrate children
+- Write unit tests for all mathematical algorithms and AI interactions
+- Use meaningful, educational-context variable names
+
+## Architecture Principles
+- **Child-first design**: Every decision prioritizes child experience and safety
+- **COPPA compliance**: Minimal data collection, parental controls, privacy by design
+- **Performance optimization**: Fast loading for short attention spans
+- **Accessibility**: Full WCAG 2.1 AA compliance for inclusive learning
+- **Cross-platform**: Web-first PWA with tablet/mobile optimization
+- **Offline capability**: Core features work without internet connection
+
+## Frontend Guidelines
+- Use functional components with hooks, optimized for touch interfaces
+- Implement proper TypeScript interfaces for all educational data structures
+- Use Zustand for state management with persistence for learning progress
+- Follow atomic design principles with reusable educational components
+- Large touch targets (minimum 44px) for small fingers
+- High contrast colors and scalable fonts for accessibility
+- React Query for API calls with optimistic updates for immediate feedback
+- Error boundaries that show child-friendly error messages
+
+## Backend Guidelines
+- Use Flask app factory pattern with educational context separation
+- Implement service layer for learning analytics and progress tracking
+- SQLAlchemy models with proper relationships for users/children/progress
+- Robust authentication middleware with COPPA-compliant user verification
+- Celery for AI processing and homework analysis tasks
+- RESTful API design with consistent educational data formats
+- Input validation and sanitization with extra care for child-generated content
+
+## Child Safety & COPPA Requirements
+- **No direct child communication**: All interactions through parent accounts
+- **Minimal data collection**: Only essential learning progress data
+- **Parental consent**: Verifiable consent before any data collection
+- **Content filtering**: Multi-layer AI content safety checks
+- **Session limits**: Built-in break reminders and usage controls
+- **Emergency protocols**: Immediate escalation for concerning content
+- **Data deletion**: Easy account and data removal processes
+- **Audit logging**: Complete tracking of all child interactions
+
+## AI/ML Guidelines
+- **Child-appropriate models**: Age-suitable language and content
+- **Safety-first**: Multiple filtering layers before any AI response
+- **Educational context**: All AI interactions should promote learning
+- **Confidence scoring**: Track reliability of all AI-generated content
+- **Cost optimization**: Smart caching and batch processing for homework analysis
+- **Fallback systems**: Graceful degradation when AI services fail
+- **Progress tracking**: AI should adapt to individual learning pace
+
+## Math Visualization Engine
+- **Shape-based numbers**: Each digit has a distinct 3D shape representation
+- **Organic transformations**: Smooth, physics-based animations between states
+- **Base-10 relationships**: Visual representation of complementary pairs (3+7, 4+6, etc.)
+- **Operation visualization**: Addition as merging, subtraction as transformation
+- **Interactive manipulation**: Children can touch, rotate, and combine shapes
+- **Progress indicators**: Visual tracking of concept mastery
+- **Adaptive difficulty**: Complexity increases with demonstrated understanding
+
+## File Structure Expectations
+```
+shapelearn/
+├── frontend/src/
+│   ├── components/
+│   │   ├── common/
+│   │   ├── math/
+│   │   ├── reading/
+│   │   └── parent/
+│   ├── pages/
+│   ├── hooks/
+│   ├── services/
+│   ├── stores/
+│   ├── types/
+│   └── utils/
+├── backend/app/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── tasks/
+│   ├── utils/
+│   └── ai/
+├── math-engine/
+├── docs/
+└── tests/
+```
+
+## Performance Considerations for Children
+- **Fast loading**: Maximum 3 seconds for any page load
+- **Smooth animations**: Maintain 60fps for all 3D visualizations
+- **Responsive feedback**: All interactions respond within 100ms
+- **Memory optimization**: Clean up Three.js objects to prevent crashes
+- **Progressive loading**: Show content immediately, enhance progressively
+- **Offline functionality**: Core math features work without internet
+- **Low-end device support**: Graceful degradation for older tablets
+
+## Parent Dashboard Guidelines
+- **Privacy-first**: Show learning progress without exposing child interactions
+- **Actionable insights**: Specific suggestions for supporting child's learning
+- **Celebration tools**: Easy creation of congratulatory messages/videos
+- **Time management**: Clear usage analytics and control tools
+- **Progress visualization**: Charts and graphs showing learning trajectories
+- **Communication**: Updates on child's achievements and areas for support
+
+## Testing Strategy
+- **Child user testing**: Regular testing with actual 5-10 year olds
+- **Accessibility testing**: Screen readers, motor impairment simulation
+- **Cross-device testing**: Various tablets, phones, browsers
+- **AI safety testing**: Adversarial inputs, edge cases, inappropriate content
+- **Performance testing**: Low-bandwidth, older devices, memory constraints
+- **Parent workflow testing**: Full parent experience validation
+
+## Error Handling for Children
+- **Never blame the child**: Errors are system issues, not user mistakes
+- **Encouraging messages**: "Let's try that again!" instead of "Error"
+- **Visual feedback**: Animations and colors to show what happened
+- **Automatic recovery**: System should fix problems without child intervention
+- **Parent notification**: Alert parents to persistent technical issues
+- **Fallback activities**: Always provide alternative when features fail
+
+## Documentation Requirements
+- **Child-friendly language**: All user-facing text appropriate for age group
+- **Parent guides**: Clear instructions for supporting child's learning
+- **Teacher resources**: Classroom integration guides and progress reports
+- **API documentation**: For future educational tool integrations
+- **Accessibility documentation**: WCAG compliance and testing procedures
+
+## Specific Domain Patterns
+- **Learning session structure**: Warm-up, main activity, celebration, reflection
+- **Progress tracking**: Mastery-based advancement, not time-based
+- **Adaptive difficulty**: Increase challenge only after demonstrating readiness
+- **Multi-modal learning**: Visual, auditory, kinesthetic input options
+- **Immediate feedback**: Positive reinforcement for effort and progress
+- **Parent involvement triggers**: Automatic notifications for achievements
+
+When helping with code, always consider:
+1. **Is this safe and appropriate for children 5-10 years old?**
+2. **Does this comply with COPPA and children's privacy requirements?**
+3. **Will this create a positive, encouraging learning experience?**
+4. **Is this accessible to children with different abilities and devices?**
+5. **Does this support the parent-child learning relationship?**
+6. **Will this perform well on tablets with small children's attention spans?**
+7. **Does this follow educational best practices for this age group?**
+
+## Emergency Guidelines
+If any AI interaction, user input, or system behavior could potentially harm a child or violate safety guidelines:
+1. **Stop immediately**: Halt all processing and user interaction
+2. **Log the incident**: Detailed logging for review and system improvement
+3. **Alert parents**: Immediate notification if account-specific
+4. **Escalate**: Human review of all safety-related incidents
+5. **Learn and improve**: Update safety systems based on incidents
