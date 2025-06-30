@@ -4,7 +4,7 @@ Runs the Flask development server
 """
 
 import os
-from . import create_app
+from app import create_app
 
 # Create the Flask app using the factory pattern
 app = create_app()
