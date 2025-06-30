@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, Text, Html } from '@react-three/drei'
+import { OrbitControls, Environment, Html } from '@react-three/drei'
 import NumberShape3D from './NumberShape3D'
 import { NumberShape, CompoundShape } from '../../types/math'
 
@@ -31,100 +31,57 @@ const MathScene3D: React.FC<MathScene3DProps> = ({
 
   return (
     <div className="math-canvas">
-      <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
+      <Canvas 
+        camera={{ position: [0, 0, 8], fov: 50 }}
+        gl={{ 
+          antialias: false,
+          alpha: true,
+          powerPreference: "default",
+          failIfMajorPerformanceCaveat: false
+        }}
+        dpr={[1, 1.5]}
+        performance={{ min: 0.5 }}
+        onCreated={({ gl }) => {
+          gl.setClearColor('#f8faff', 0)
+        }}
+      >
         <Suspense fallback={<LoadingFallback />}>
-          {/* Lighting */}
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[10, 10, 5]} intensity={0.8} />
-          <pointLight position={[-10, -10, -5]} intensity={0.4} />
+          <ambientLight intensity={0.7} />
+          <directionalLight position={[5, 5, 5]} intensity={0.6} />
           
-          {/* Environment for better reflections */}
-          <Environment preset="city" />
+          <Html center position={[0, 3, 0]}>
+            <div className="flex items-center gap-4 text-2xl font-bold bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
+              <span className="text-gray-700">{operand1}</span>
+              {operation && <span className="text-gray-500">{operationSymbol}</span>}
+              <span className="text-gray-700">{operand2}</span>
+              {showResult && result !== undefined && (
+                <>
+                  <span className="text-gray-500">=</span>
+                  <span className="text-green-600">{result}</span>
+                </>
+              )}
+            </div>
+          </Html>
           
-          {/* Math equation display */}
-          <group position={[0, 3, 0]}>
-            <Text
-              position={[-3, 0, 0]}
-              fontSize={0.8}
-              color="#374151"
-              anchorX="center"
-              anchorY="middle"
-              font="/fonts/Inter-Bold.woff"
-            >
-              {operand1}
-            </Text>
-            
-            {operation && (
-              <Text
-                position={[-1, 0, 0]}
-                fontSize={0.8}
-                color="#6B7280"
-                anchorX="center"
-                anchorY="middle"
-                font="/fonts/Inter-Bold.woff"
-              >
-                {operationSymbol}
-              </Text>
-            )}
-            
-            <Text
-              position={[1, 0, 0]}
-              fontSize={0.8}
-              color="#374151"
-              anchorX="center"
-              anchorY="middle"
-              font="/fonts/Inter-Bold.woff"
-            >
-              {operand2}
-            </Text>
-            
-            {showResult && result !== undefined && (
-              <>
-                <Text
-                  position={[3, 0, 0]}
-                  fontSize={0.8}
-                  color="#6B7280"
-                  anchorX="center"
-                  anchorY="middle"
-                  font="/fonts/Inter-Bold.woff"
-                >
-                  =
-                </Text>
-                <Text
-                  position={[5, 0, 0]}
-                  fontSize={0.8}
-                  color="#22C55E"
-                  anchorX="center"
-                  anchorY="middle"
-                  font="/fonts/Inter-Bold.woff"
-                >
-                  {result}
-                </Text>
-              </>
-            )}
-          </group>
-          
-          {/* Number shapes */}
           <group position={[0, 0, 0]}>
-            {/* First operand */}
             {operand1Shape && (
               <NumberShape3D
                 shape={operand1Shape}
                 position={[-3, 0, 0]}
                 animate={isAnimating}
+                scale={[1, 1, 1]}
               />
             )}
             
-            {/* Second operand */}
             {operand2Shape && (
               <NumberShape3D
                 shape={operand2Shape}
                 position={[1, 0, 0]}
                 animate={isAnimating}
+                scale={[1, 1, 1]}
               />
             )}
             
-            {/* Result shape */}
             {showResult && resultShape && (
               <NumberShape3D
                 shape={resultShape}
@@ -135,11 +92,11 @@ const MathScene3D: React.FC<MathScene3DProps> = ({
             )}
           </group>
           
-          {/* Interactive controls */}
           <OrbitControls
             enablePan={false}
             enableZoom={true}
             enableRotate={true}
+            enableDamping={false}
             maxPolarAngle={Math.PI / 2}
             minPolarAngle={Math.PI / 4}
             maxDistance={12}
@@ -151,12 +108,11 @@ const MathScene3D: React.FC<MathScene3DProps> = ({
   )
 }
 
-// Loading fallback component
 const LoadingFallback: React.FC = () => (
   <Html center>
-    <div className="flex items-center justify-center p-4">
-      <div className="loading-spinner w-8 h-8 border-4 border-primary-200 border-t-primary-500 rounded-full"></div>
-      <span className="ml-3 text-lg text-gray-600">Loading shapes...</span>
+    <div className="text-center p-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg">
+      <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin mx-auto mb-2"></div>
+      <span className="text-lg text-gray-600">Loading shapes...</span>
     </div>
   </Html>
 )

@@ -40,6 +40,11 @@ const NumberShapeGallery: React.FC = () => {
 
   const numbers = Array.from({ length: 21 }, (_, i) => i) // 0-20
 
+  const handleNumberClick = (num: number) => {
+    // Fix the persistent selection bug
+    setSelectedNumber(current => current === num ? null : num)
+  }
+
   return (
     <div className="max-w-6xl mx-auto">
       {/* Number grid */}
@@ -47,7 +52,7 @@ const NumberShapeGallery: React.FC = () => {
         {numbers.map((num) => (
           <button
             key={num}
-            onClick={() => setSelectedNumber(num === selectedNumber ? null : num)}
+            onClick={() => handleNumberClick(num)}
             onMouseEnter={() => setHoveredNumber(num)}
             onMouseLeave={() => setHoveredNumber(null)}
             className={`aspect-square rounded-2xl font-bold text-2xl transition-all duration-300 shadow-lg ${
@@ -74,28 +79,39 @@ const NumberShapeGallery: React.FC = () => {
               </h3>
               
               <div className="aspect-square bg-gradient-to-b from-white to-blue-50 rounded-2xl shadow-inner overflow-hidden">
-                <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-                  <ambientLight intensity={0.6} />
-                  <directionalLight position={[10, 10, 5]} intensity={0.8} />
-                  <pointLight position={[-10, -10, -5]} intensity={0.4} />
-                  
-                  <Environment preset="city" />
-                  
-                  <NumberShape3D
-                    shape={allShapes[selectedNumber]}
-                    position={[0, 0, 0]}
-                    animate={true}
-                    scale={[1.5, 1.5, 1.5]}
-                  />
-                  
-                  <OrbitControls
-                    enablePan={false}
-                    enableZoom={true}
-                    enableRotate={true}
-                    autoRotate={true}
-                    autoRotateSpeed={2}
-                  />
-                </Canvas>
+                <ErrorBoundary fallback={() => <WebGLErrorFallback />}>
+                  <Canvas 
+                    camera={{ position: [0, 0, 5], fov: 50 }}
+                    gl={{ 
+                      antialias: true, 
+                      alpha: true,
+                      powerPreference: "high-performance",
+                      failIfMajorPerformanceCaveat: false
+                    }}
+                    key={selectedNumber} // Force remount when number changes
+                  >
+                    <ambientLight intensity={0.6} />
+                    <directionalLight position={[10, 10, 5]} intensity={0.8} />
+                    <pointLight position={[-10, -10, -5]} intensity={0.4} />
+                    
+                    <Environment preset="city" />
+                    
+                    <NumberShape3D
+                      shape={allShapes[selectedNumber]}
+                      position={[0, 0, 0]}
+                      animate={true}
+                      scale={[1.5, 1.5, 1.5]}
+                    />
+                    
+                    <OrbitControls
+                      enablePan={false}
+                      enableZoom={true}
+                      enableRotate={true}
+                      autoRotate={true}
+                      autoRotateSpeed={2}
+                    />
+                  </Canvas>
+                </ErrorBoundary>
               </div>
             </div>
 
@@ -216,5 +232,45 @@ const NumberShapeGallery: React.FC = () => {
     </div>
   )
 }
+
+// Error boundary for WebGL issues
+class ErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback: () => JSX.Element },
+  { hasError: boolean }
+> {
+  constructor(props: any) {
+    super(props)
+    this.state = { hasError: false }
+  }
+
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true }
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error('WebGL Error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback()
+    }
+
+    return this.props.children
+  }
+}
+
+// Fallback component when WebGL fails
+const WebGLErrorFallback: React.FC = () => (
+  <div className="aspect-square bg-gradient-to-b from-gray-100 to-gray-200 rounded-2xl shadow-inner flex items-center justify-center">
+    <div className="text-center p-8">
+      <div className="text-6xl mb-4">🎨</div>
+      <p className="text-lg text-gray-600 mb-2">3D view not available</p>
+      <p className="text-sm text-gray-500">
+        Your browser might not support 3D graphics, but the shapes are still here!
+      </p>
+    </div>
+  </div>
+)
 
 export default NumberShapeGallery 

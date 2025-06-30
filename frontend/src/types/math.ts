@@ -1,5 +1,4 @@
 export interface ShapeGeometry {
-  type: string
   [key: string]: any
 }
 
