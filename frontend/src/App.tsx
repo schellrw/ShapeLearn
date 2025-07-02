@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import MathVisualizationDemo from './components/math/MathVisualizationDemo'
 import NumberShapeGallery from './components/math/NumberShapeGallery'

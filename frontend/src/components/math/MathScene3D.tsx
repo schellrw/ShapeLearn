@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, Html } from '@react-three/drei'
+import { OrbitControls, Html } from '@react-three/drei'
 import NumberShape3D from './NumberShape3D'
 import { NumberShape, CompoundShape } from '../../types/math'
 
@@ -8,26 +8,63 @@ interface MathScene3DProps {
   operand1Shape?: NumberShape | CompoundShape
   operand2Shape?: NumberShape | CompoundShape
   resultShape?: NumberShape | CompoundShape
-  operand1: number
-  operand2: number
-  result?: number
-  operation: 'addition' | 'subtraction' | null
+  operation: 'addition' | 'subtraction'
   showResult: boolean
   isAnimating: boolean
+  animationPhase: 'initial' | 'moving' | 'linking' | 'morphing' | 'result'
 }
 
 const MathScene3D: React.FC<MathScene3DProps> = ({
   operand1Shape,
   operand2Shape,
   resultShape,
-  operand1,
-  operand2,
-  result,
-  operation,
   showResult,
-  isAnimating
+  isAnimating,
+  animationPhase
 }) => {
-  const operationSymbol = operation === 'addition' ? '+' : operation === 'subtraction' ? '−' : ''
+  // Calculate positions based on animation phase
+  const getShapePositions = () => {
+    switch (animationPhase) {
+      case 'initial':
+        return {
+          operand1: [-4, 0, 0] as [number, number, number],
+          operand2: [4, 0, 0] as [number, number, number],
+          result: [0, -4, 0] as [number, number, number]
+        }
+      case 'moving':
+        return {
+          operand1: [-2, 0, 0] as [number, number, number],
+          operand2: [2, 0, 0] as [number, number, number],
+          result: [0, -4, 0] as [number, number, number]
+        }
+      case 'linking':
+        return {
+          operand1: [-1, 0, 0] as [number, number, number],
+          operand2: [1, 0, 0] as [number, number, number],
+          result: [0, -2, 0] as [number, number, number]
+        }
+      case 'morphing':
+        return {
+          operand1: [-0.5, 0, 0] as [number, number, number],
+          operand2: [0.5, 0, 0] as [number, number, number],
+          result: [0, 0, 0] as [number, number, number]
+        }
+      case 'result':
+        return {
+          operand1: [-3, 0, 0] as [number, number, number],
+          operand2: [1, 0, 0] as [number, number, number],
+          result: [0, 0, 0] as [number, number, number]
+        }
+      default:
+        return {
+          operand1: [-3, 0, 0] as [number, number, number],
+          operand2: [1, 0, 0] as [number, number, number],
+          result: [5, 0, 0] as [number, number, number]
+        }
+    }
+  }
+
+  const positions = getShapePositions()
 
   return (
     <div className="math-canvas">
@@ -48,27 +85,16 @@ const MathScene3D: React.FC<MathScene3DProps> = ({
         <Suspense fallback={<LoadingFallback />}>
           <ambientLight intensity={0.7} />
           <directionalLight position={[5, 5, 5]} intensity={0.6} />
-          
-          <Html center position={[0, 3, 0]}>
-            <div className="flex items-center gap-4 text-2xl font-bold bg-white/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg">
-              <span className="text-gray-700">{operand1}</span>
-              {operation && <span className="text-gray-500">{operationSymbol}</span>}
-              <span className="text-gray-700">{operand2}</span>
-              {showResult && result !== undefined && (
-                <>
-                  <span className="text-gray-500">=</span>
-                  <span className="text-green-600">{result}</span>
-                </>
-              )}
-            </div>
-          </Html>
+          <directionalLight position={[-5, -5, 5]} intensity={0.3} />
           
           <group position={[0, 0, 0]}>
             {operand1Shape && (
               <NumberShape3D
                 shape={operand1Shape}
-                position={[-3, 0, 0]}
-                animate={isAnimating}
+                position={positions.operand1}
+                animate={true}
+                isAnimating={isAnimating}
+                animationPhase={animationPhase}
                 scale={[1, 1, 1]}
               />
             )}
@@ -76,18 +102,22 @@ const MathScene3D: React.FC<MathScene3DProps> = ({
             {operand2Shape && (
               <NumberShape3D
                 shape={operand2Shape}
-                position={[1, 0, 0]}
-                animate={isAnimating}
+                position={positions.operand2}
+                animate={true}
+                isAnimating={isAnimating}
+                animationPhase={animationPhase}
                 scale={[1, 1, 1]}
               />
             )}
             
-            {showResult && resultShape && (
+            {(showResult || animationPhase === 'morphing' || animationPhase === 'result') && resultShape && (
               <NumberShape3D
                 shape={resultShape}
-                position={[5, 0, 0]}
+                position={positions.result}
                 animate={true}
-                scale={[1.2, 1.2, 1.2]}
+                isAnimating={isAnimating}
+                animationPhase={animationPhase}
+                scale={animationPhase === 'result' ? [1.3, 1.3, 1.3] : [1, 1, 1]}
               />
             )}
           </group>

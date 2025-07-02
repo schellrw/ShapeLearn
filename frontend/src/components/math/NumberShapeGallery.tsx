@@ -4,7 +4,7 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment } from '@react-three/drei'
 import NumberShape3D from './NumberShape3D'
 import { getAllShapes } from '../../services/mathApi'
-import { NumberShape, CompoundShape } from '../../types/math'
+
 
 const NumberShapeGallery: React.FC = () => {
   const [selectedNumber, setSelectedNumber] = useState<number | null>(null)
@@ -243,7 +243,7 @@ class ErrorBoundary extends React.Component<
     this.state = { hasError: false }
   }
 
-  static getDerivedStateFromError(error: any) {
+  static getDerivedStateFromError(_error: any) {
     return { hasError: true }
   }
 

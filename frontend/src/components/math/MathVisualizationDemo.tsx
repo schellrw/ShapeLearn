@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import MathScene3D from './MathScene3D'
 import { getNumberShape, calculateOperation } from '../../services/mathApi'
-import { NumberShape, CompoundShape, MathOperation } from '../../types/math'
+import { MathOperation } from '../../types/math'
 
 const MathVisualizationDemo: React.FC = () => {
   const [operand1, setOperand1] = useState<number>(3)
@@ -10,7 +10,9 @@ const MathVisualizationDemo: React.FC = () => {
   const [operation, setOperation] = useState<'addition' | 'subtraction'>('addition')
   const [showResult, setShowResult] = useState<boolean>(false)
   const [isAnimating, setIsAnimating] = useState<boolean>(false)
+  const [animationPhase, setAnimationPhase] = useState<'initial' | 'moving' | 'linking' | 'morphing' | 'result'>('initial')
   const [mathResult, setMathResult] = useState<MathOperation | null>(null)
+  const [displayEquation, setDisplayEquation] = useState<string>('')
 
   // Fetch shapes for operands
   const { data: operand1Shape, isLoading: loading1 } = useQuery(
@@ -33,21 +35,46 @@ const MathVisualizationDemo: React.FC = () => {
     { enabled: showResult && result >= 0 && result <= 20 }
   )
 
-  // Calculate operation
+  // Enhanced animation sequence
   const handleCalculate = async () => {
     try {
       setIsAnimating(true)
+      setAnimationPhase('initial')
+      
+      // Reset equation display
+      const operatorSymbol = operation === 'addition' ? '+' : '-'
+      setDisplayEquation(`${operand1} ${operatorSymbol} ${operand2}`)
+      
+      // Calculate operation
       const operationResult = await calculateOperation(operation, operand1, operand2)
       setMathResult(operationResult)
       
-      // Show result after animation delay
+      // Animation sequence with proper timing
       setTimeout(() => {
+        setAnimationPhase('moving')
+        setDisplayEquation(`${operand1} ${operatorSymbol} ${operand2}`)
+      }, 500)
+      
+      setTimeout(() => {
+        setAnimationPhase('linking')
+        setDisplayEquation(`${operand1} ${operatorSymbol} ${operand2} =`)
+      }, 1200)
+      
+      setTimeout(() => {
+        setAnimationPhase('morphing')
+        setDisplayEquation(`${operand1} ${operatorSymbol} ${operand2} = ${result}`)
+      }, 1800)
+      
+      setTimeout(() => {
+        setAnimationPhase('result')
         setShowResult(true)
         setIsAnimating(false)
-      }, 1500)
+      }, 2500)
+      
     } catch (error) {
       console.error('Calculation failed:', error)
       setIsAnimating(false)
+      setAnimationPhase('initial')
     }
   }
 
@@ -56,6 +83,27 @@ const MathVisualizationDemo: React.FC = () => {
     setShowResult(false)
     setMathResult(null)
     setIsAnimating(false)
+    setAnimationPhase('initial')
+    setDisplayEquation('')
+  }
+
+  // Generate celebration message for complementary numbers
+  const getCelebrationMessage = () => {
+    if (operation === 'addition' && operand1 + operand2 === 10) {
+      return {
+        title: "🌟 Complementary Numbers! They make 10!",
+        message: `${operand1} and ${operand2} are math buddies - they always add up to 10!`,
+        celebration: true
+      }
+    }
+    if (showResult && mathResult) {
+      return {
+        title: "🎉 Great job! You solved the problem!",
+        message: `These numbers are best friends - they always add up to ${result}!`,
+        celebration: false
+      }
+    }
+    return null
   }
 
   // Preset problems for easy testing
@@ -63,6 +111,8 @@ const MathVisualizationDemo: React.FC = () => {
     { operand1: 3, operand2: 7, operation: 'addition' as const, label: '3 + 7 (Complementary!)' },
     { operand1: 2, operand2: 8, operation: 'addition' as const, label: '2 + 8 (Complementary!)' },
     { operand1: 5, operand2: 4, operation: 'addition' as const, label: '5 + 4' },
+    { operand1: 1, operand2: 9, operation: 'addition' as const, label: '1 + 9 (Complementary!)' },
+    { operand1: 4, operand2: 6, operation: 'addition' as const, label: '4 + 6 (Complementary!)' },
     { operand1: 10, operand2: 3, operation: 'subtraction' as const, label: '10 - 3' },
     { operand1: 15, operand2: 7, operation: 'subtraction' as const, label: '15 - 7' },
   ]
@@ -75,9 +125,62 @@ const MathVisualizationDemo: React.FC = () => {
   }
 
   const isLoading = loading1 || loading2 || (showResult && loadingResult)
+  const celebrationMessage = getCelebrationMessage()
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* Enhanced 3D Visualization */}
+      <div className="card-child mb-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold text-gray-800">
+            3D Shape Visualization
+          </h2>
+          
+          {/* Live equation display */}
+          {displayEquation && (
+            <div className="text-2xl font-bold text-gray-700 bg-gray-100 px-4 py-2 rounded-lg">
+              {displayEquation}
+            </div>
+          )}
+        </div>
+        
+        {/* Celebration banner */}
+        {celebrationMessage && (
+          <div className={`mb-6 p-4 rounded-xl ${
+            celebrationMessage.celebration 
+              ? 'bg-yellow-100 border-2 border-yellow-300' 
+              : 'bg-green-100 border-2 border-green-300'
+          }`}>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">
+              {celebrationMessage.title}
+            </h3>
+            <p className="text-gray-700">{celebrationMessage.message}</p>
+          </div>
+        )}
+
+        {/* Enhanced 3D Scene */}
+        <div className="h-96 bg-gradient-to-b from-blue-50 to-purple-50 rounded-xl overflow-hidden">
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading 3D shapes...</p>
+              </div>
+            </div>
+          ) : (
+            <MathScene3D
+              operand1Shape={operand1Shape}
+              operand2Shape={operand2Shape}
+              resultShape={showResult ? resultShape : undefined}
+              operation={operation}
+              isAnimating={isAnimating}
+              animationPhase={animationPhase}
+              showResult={showResult}
+            />
+          )}
+        </div>
+      </div>
+
       {/* Controls */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Manual Input */}
@@ -166,7 +269,7 @@ const MathVisualizationDemo: React.FC = () => {
                 disabled={isLoading || isAnimating}
                 className="btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isAnimating ? '🎬 Calculating...' : '✨ See the Magic!'}
+                {isAnimating ? '🎬 Watch the Magic!' : '✨ See the Magic!'}
               </button>
               
               {(showResult || mathResult) && (
@@ -192,7 +295,7 @@ const MathVisualizationDemo: React.FC = () => {
               <button
                 key={index}
                 onClick={() => loadPreset(preset)}
-                className="w-full btn-secondary text-left py-4 px-6 hover:bg-primary-50 hover:border-primary-300"
+                className="w-full btn-secondary text-left py-4 px-6 hover:bg-primary-50 hover:border-primary-300 transition-all"
               >
                 <span className="font-semibold text-lg">{preset.label}</span>
                 {(preset.operand1 + preset.operand2 === 10 && preset.operation === 'addition') && (
@@ -203,64 +306,37 @@ const MathVisualizationDemo: React.FC = () => {
               </button>
             ))}
           </div>
+          
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <h4 className="font-semibold text-blue-800 mb-2">✨ Animation Features:</h4>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• Numbers move smoothly in 3D space</li>
+              <li>• Watch them link up and combine</li>
+              <li>• Morphing transformation into the answer</li>
+              <li>• Special celebrations for complementary numbers!</li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      {/* 3D Visualization */}
-      <div className="card-child">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-2xl font-bold text-gray-800">
-            3D Shape Visualization
-          </h3>
-          {mathResult?.transformation.is_complementary && (
-            <div className="bg-yellow-100 border-2 border-yellow-300 rounded-xl px-4 py-2">
-              <span className="text-yellow-800 font-semibold">
-                🌟 Complementary Numbers! They make 10!
-              </span>
-            </div>
-          )}
-        </div>
-
-        {isLoading ? (
-          <div className="math-canvas flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <div className="loading-spinner w-12 h-12 border-4 border-primary-200 border-t-primary-500 rounded-full mx-auto mb-4"></div>
-              <p className="text-xl text-gray-600">Loading amazing shapes...</p>
-            </div>
-          </div>
-        ) : (
-          <MathScene3D
-            operand1Shape={operand1Shape}
-            operand2Shape={operand2Shape}
-            resultShape={resultShape}
-            operand1={operand1}
-            operand2={operand2}
-            result={result >= 0 ? result : undefined}
-            operation={operation}
-            showResult={showResult}
-            isAnimating={isAnimating}
-          />
-        )}
-
-        {/* Result display */}
-        {showResult && mathResult && (
-          <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl border-2 border-green-200">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2 celebrate">
-                🎉 {mathResult.equation} 🎉
-              </div>
-              <p className="text-lg text-gray-700">
-                Great job! You solved the problem!
+      {/* Success celebration */}
+      {showResult && mathResult && (
+        <div className="card-child bg-green-50 border-2 border-green-200">
+          <div className="text-center">
+            <h3 className="text-2xl font-bold text-green-800 mb-4">
+              🎉 {mathResult.equation} 🎉
+            </h3>
+            <p className="text-lg text-green-700 mb-4">
+              Great job! You solved the problem!
+            </p>
+            {mathResult.transformation.is_complementary && (
+              <p className="text-md text-orange-600 font-semibold">
+                ✨ These numbers are best friends - they always add up to 10!
               </p>
-              {mathResult.transformation.is_complementary && (
-                <p className="text-md text-yellow-700 mt-2 font-semibold">
-                  ✨ These numbers are best friends - they always add up to 10!
-                </p>
-              )}
-            </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
